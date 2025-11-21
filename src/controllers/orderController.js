@@ -9,21 +9,14 @@ exports.createOrder = async (req, res) => {
   const { firstName, lastName, email, phoneNumber, country, planName } = req.body;
 
   try {
-    // Trouver le plan par son nom (insensible à la casse)
-    const plan = await Plan.findOne({ name: { $regex: new RegExp(`^${planName}$`, 'i') } });
-    if (!plan) {
-      return res.status(404).json({ message: `Le plan nommé '${planName}' est introuvable.` });
-    }
-
     const order = new Order({
       firstName,
       lastName,
       email,
       phoneNumber,
       country,
-      plan: plan._id,
-      credits: plan.credits,
-      amount: plan.price,
+      planName, // On stocke simplement le nom du plan fourni
+      // Le prix et les crédits seront déterminés à la validation
     });
 
     const createdOrder = await order.save();
@@ -48,16 +41,23 @@ exports.validateOrder = async (req, res) => {
       return res.status(400).json({ message: 'Cette commande a déjà été validée.' });
     }
 
+    // On recherche le plan correspondant au nom stocké dans la commande
+    const plan = await Plan.findOne({ name: order.planName });
+    if (!plan) {
+        // Ce cas est peu probable si la logique de création est correcte, mais c'est une sécurité
+        return res.status(404).json({ message: `Le plan '${order.planName}' associé à cette commande est introuvable.` });
+    }
+
     // Vérifier si un utilisateur avec cet email existe déjà
     let user = await User.findOne({ email: order.email });
 
     if (user) {
-      // Si l'utilisateur existe, mettre à jour ses crédits et son plan
+      // Si l'utilisateur existe, on met à jour ses crédits et son plan
       user.creditsRemaining += order.credits;
-      user.activePlanId = order.plan;
+      user.activePlanId = plan._id; // On utilise l'ID du plan trouvé
       user.orders.push(order._id);
     } else {
-      // Sinon, créer un nouvel utilisateur
+      // Sinon, on crée un nouvel utilisateur
       user = new User({
         firstName: order.firstName,
         lastName: order.lastName,
@@ -65,18 +65,20 @@ exports.validateOrder = async (req, res) => {
         phoneNumber: order.phoneNumber,
         country: order.country,
         status: 'active',
-        activePlanId: order.plan,
-        creditsRemaining: order.credits,
+        activePlanId: plan._id, // On utilise l'ID du plan trouvé
+        creditsRemaining: order.credits, // On utilise les crédits de la commande
         orders: [order._id],
       });
     }
 
     await user.save();
 
-    // Mettre à jour la commande
+    // Mettre à jour la commande avec les informations du plan et le statut
+    order.credits = plan.credits;
+    order.amount = plan.price;
     order.status = 'validée';
     order.validatedAt = Date.now();
-    order.user = user._id; // Lier la commande au nouvel utilisateur
+    order.user = user._id; // Lier la commande à l'utilisateur créé/mis à jour
     await order.save();
 
     res.status(200).json({ message: 'Commande validée et utilisateur créé/mis à jour.', order, user });

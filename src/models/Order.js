@@ -33,9 +33,9 @@ const Schema = mongoose.Schema;
  *         user:
  *           type: string
  *           description: L'ID de l'utilisateur créé après validation de la commande.
- *         plan:
+ *         planName:
  *           type: string
- *           description: L'ID du plan choisi.
+ *           description: "Le nom du plan choisi (ex: 'Starter')."
  *         credits:
  *           type: number
  *           description: Le nombre de crédits achetés avec le plan.
@@ -74,18 +74,15 @@ const OrderSchema = new Schema({
     ref: 'User',
     default: null
   },
-  plan: {
-    type: Schema.Types.ObjectId,
-    ref: 'Plan',
+  planName: {
+    type: String,
     required: true,
   },
   credits: {
     type: Number,
-    required: true,
   },
   amount: {
     type: Number,
-    required: true,
   },
   currency: {
     type: String,
