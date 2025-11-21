@@ -42,7 +42,7 @@ const { verifyAdmin } = require('../middleware/authMiddleware');
  *                 type: string
  *               planName:
  *                 type: string
- *                 description: Le nom du plan (ex: 'Starter' ou 'Professionnel').
+ *                 description: "Le nom du plan (ex: 'Starter' ou 'Professionnel')."
  *     responses:
  *       201:
  *         description: Commande créée avec succès, en attente de validation.
