@@ -2,25 +2,6 @@ const User = require('../models/User');
 const Plan = require('../models/Plan');
 const { v4: uuidv4 } = require('uuid');
 
-// @desc    Pré-enregistrer un utilisateur
-// @route   POST /api/users/pre-register
-// @access  Public
-exports.preRegisterUser = async (req, res) => {
-  try {
-    // Crée un nouvel utilisateur avec les valeurs par défaut pour un compte en attente
-    const user = new User({
-      ...req.body,
-      status: 'pending',
-      creditsRemaining: 0,
-      activePlanId: null,
-    });
-    await user.save();
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(400).json({ message: 'Erreur lors du pré-enregistrement', error });
-  }
-};
-
 // @desc    Activer le plan d'un utilisateur
 // @route   PUT /api/users/:id/activate
 // @access  Private // (Logique de paiement à ajouter)

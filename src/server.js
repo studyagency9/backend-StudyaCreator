@@ -28,6 +28,7 @@ app.use('/api/plans', require('./routes/plans'));
 app.use('/api/templates', require('./routes/templates'));
 app.use('/api/generations', require('./routes/generations'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/orders', require('./routes/orders'));
 
 // Route de base pour vérifier que le serveur fonctionne
 app.get('/', (req, res) => {
@@ -41,5 +42,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 
 // Importation et lancement des tâches planifiées
-const { cleanupPendingUsers } = require('./services/cronJobs');
-cleanupPendingUsers();
+const { cancelPendingOrders } = require('./services/cronJobs');
+cancelPendingOrders();

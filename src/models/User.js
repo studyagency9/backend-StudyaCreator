@@ -46,6 +46,11 @@ const { Schema } = mongoose;
  *         creditsRemaining:
  *           type: number
  *           description: Le nombre de crédits restants pour l'utilisateur.
+ *         orders:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: La liste des commandes de l'utilisateur.
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -112,6 +117,11 @@ const UserSchema = new Schema({
     default: 0,
     min: 0,
   },
+  // Commandes de l'utilisateur
+  orders: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Order'
+  }],
   // Date de création du compte, par défaut la date actuelle
   createdAt: {
     type: Date,

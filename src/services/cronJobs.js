@@ -1,25 +1,26 @@
 const cron = require('node-cron');
-const User = require('../models/User');
+const Order = require('../models/Order');
 
-// Tâche planifiée pour s'exécuter tous les jours à minuit
-const cleanupPendingUsers = () => {
-  cron.schedule('0 0 * * *', async () => {
-    console.log('Exécution de la tâche de nettoyage des utilisateurs en attente...');
+// Tâche Cron pour annuler les commandes en attente depuis plus de 48h
+const cancelPendingOrders = () => {
+  // Exécute la tâche toutes les heures
+  cron.schedule('0 * * * *', async () => {
+    console.log('Running cron job to cancel pending orders...');
+    const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
     try {
-      const fortyEightHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+      const result = await Order.updateMany(
+        { status: 'en cours', createdAt: { $lte: fortyEightHoursAgo } },
+        { $set: { status: 'annullée' } }
+      );
 
-      const result = await User.deleteMany({
-        status: 'pending',
-        createdAt: { $lte: fortyEightHoursAgo },
-      });
-
-      if (result.deletedCount > 0) {
-        console.log(`${result.deletedCount} utilisateurs en attente ont été supprimés.`);
+      if (result.nModified > 0) {
+        console.log(`${result.nModified} pending orders have been cancelled.`);
       }
     } catch (error) {
-      console.error('Erreur lors du nettoyage des utilisateurs en attente:', error);
+      console.error('Error cancelling pending orders:', error);
     }
   });
 };
 
-module.exports = { cleanupPendingUsers };
+module.exports = { cancelPendingOrders };

@@ -1,71 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const { 
-  preRegisterUser,
+const {
   activateUserPlan,
   getAllUsers,
   getUserById,
-  deleteUser
+  deleteUser,
 } = require('../controllers/userController');
 
 /**
  * @swagger
  * tags:
  *   name: Users
- *   description: Gestion des utilisateurs et de leur cycle de vie
+ *   description: Gestion des utilisateurs
  */
 
 /**
  * @swagger
- * /users/pre-register:
- *   post:
- *     summary: Crée un nouvel utilisateur avec un statut "pending"
- *     tags: [Users]
- *     description: Endpoint pour le pré-enregistrement. Crée un utilisateur avec des crédits à 0 et aucun plan actif.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - firstName
- *               - lastName
- *               - email
- *               - phoneNumber
- *               - country
- *             properties:
- *               firstName:
- *                 type: string
- *               lastName:
- *                 type: string
- *               email:
- *                 type: string
- *               phoneNumber:
- *                 type: string
- *               country:
- *                 type: string
- *           example:
- *             firstName: Jane
- *             lastName: Doe
- *             email: jane.doe@example.com
- *             phoneNumber: "+237688888888"
- *             country: Cameroon
- *     responses:
- *       201:
- *         description: Utilisateur pré-enregistré avec succès.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       400:
- *         description: Données d'entrée invalides.
- */
-router.post('/pre-register', preRegisterUser);
-
-/**
- * @swagger
- * /users/{id}/activate:
+ * /api/users/{id}/activate:
  *   put:
  *     summary: Active le plan d'un utilisateur
  *     tags: [Users]
@@ -110,7 +61,7 @@ router.put('/:id/activate', activateUserPlan);
 
 /**
  * @swagger
- * /users:
+ * /api/users:
  *   get:
  *     summary: Récupère la liste de tous les utilisateurs
  *     tags: [Users]
@@ -128,7 +79,7 @@ router.get('/', getAllUsers);
 
 /**
  * @swagger
- * /users/{id}:
+ * /api/users/{id}:
  *   get:
  *     summary: Récupère un utilisateur par son ID
  *     tags: [Users]
@@ -153,7 +104,7 @@ router.get('/:id', getUserById);
 
 /**
  * @swagger
- * /users/{id}:
+ * /api/users/{id}:
  *   delete:
  *     summary: Supprime un utilisateur
  *     tags: [Users]
